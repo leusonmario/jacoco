@@ -1,14 +1,25 @@
+
+sudo: required
 language: java
 
-# Skip "install" stage:
-install: true
+jdk:
+  - oraclejdk8
 
-script: mvn -V -B clean verify
+script:
+  - mvn clean cobertura:cobertura -Dtest=AgentTaskTest#xml -DfailIfNoTests=false
 
-# Use container-based infrastructure:
-sudo: false
+before_deploy:
+- tar -zcvf coverage-result.tar.gz /home/travis/build/leusonmario/jacoco/target/site/cobertura
 
-# Keep Maven local repository between builds:
-cache:
-  directories:
-    - '$HOME/.m2/repository'
+deploy:
+  provider: releases
+  api_key:
+    secure: "ZHnNuUxja3zaLEqLrJfC7LKBoIDza+fSrq5o7eIZL7i+ido9Sncjln3RGo033FjXN50myQo104lrqDOx4PldXs/S4tgnh0H8fPvbQL/mOe1WxeyU3SVYxcPDOf0M+gVOWM/oMt2bCt6XJMCwt5aGP4JafqsL1cTeYWIXDinxEA4eqiCgToYt/nzo/OTxjCZEfkjOlI3YUKUHbA2WJ0H5itVMX3cpQ8d1HivAf04RMDpRpUBXGD0777FjewlPINvSIhoaEBz2vivNVcZ4t5w90meuZJihFuXlNcefGcAP0u4mqJDZexkd097SKRA/Q9OWjr9q+X4pOVxCB8LmddaNNXXKyYOW5yFk/0VXBivB43gXbsuN54nsBO2AAtJUkc7IA8qG5Y4sC+2AsFnfI77tJrqbD57M2kIK14f41uNaW2e5fwHSV7YE+eFQMN/s5IeyJwnBEwEVAY+oYX+PLSYE/l3qO4DIgCW/wZiEMVDCRqdiIjxQQBaObKE/KidkeXMGb+g8qR2NWagW4/FqL1+kEHzs5SsDXbr+S2zNefWYGt65k3+ms3qDsBXRi+FHFqQ1PnT0pGV8W89QgZtLCiCaPqZVSJ/RxgeNRB4AlLtQhM/At/xXRLDE1qFzGT/QaUfWiIwznXRBn5dGD+bHsmi06JKAytp4ayR1F3KgAHDFJuw="
+
+
+  file: coverage-result.tar.gz
+  file_glob: true
+  overwrite: true
+  skip_cleanup: true
+  on:
+    tags: true
